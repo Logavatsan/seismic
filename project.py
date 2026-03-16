@@ -4,12 +4,10 @@ from datetime import datetime
 
 print("Starting earthquake data project...")
 
-# USGS API URL
 url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
 
 all_records = []
 
-# get last 5 years
 start_year = datetime.now().year - 5
 end_year = datetime.now().year
 
@@ -36,10 +34,6 @@ for year in range(start_year, end_year + 1):
         }
 
         response = requests.get(url, params=params)
-
-        if response.status_code != 200:
-            print("API request failed")
-            continue
 
         data = response.json()
 
@@ -83,24 +77,20 @@ for year in range(start_year, end_year + 1):
                 "ids": p.get("ids"),
                 "sources": p.get("sources"),
                 "type": p.get("type")
-
             })
 
 print("Data collection finished")
 
-# convert to dataframe
 df = pd.DataFrame(all_records)
 
 print("Total records:", len(df))
 
-# save raw dataset
 df.to_csv("earthquake_raw.csv", index=False)
 
 print("Raw dataset saved")
 
 print("Cleaning dataset...")
 
-# convert numeric columns
 numeric_cols = [
     "mag", "depth_km", "felt", "cdi",
     "mmi", "sig", "nst", "dmin",
@@ -112,12 +102,10 @@ for col in numeric_cols:
 
 df[numeric_cols] = df[numeric_cols].fillna(0)
 
-# create date columns
 df["year"] = df["time"].dt.year
 df["month"] = df["time"].dt.month
 df["day"] = df["time"].dt.day
 
-# depth category
 def depth_category(depth):
 
     if depth < 70:
@@ -131,13 +119,11 @@ def depth_category(depth):
 
 df["depth_category"] = df["depth_km"].apply(depth_category)
 
-# strong earthquake flag
 df["strong_earthquake"] = df["mag"].apply(lambda x: 1 if x >= 6 else 0)
 
 print("Checking missing values:")
 print(df.isnull().sum())
 
-# save cleaned dataset
 df.to_csv("earthquake_cleaned.csv", index=False)
 
 print("Cleaned dataset saved successfully")
