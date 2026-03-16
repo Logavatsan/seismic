@@ -2,12 +2,12 @@ import requests
 import pandas as pd
 from datetime import datetime
 
-#Starting earthquake data project
+print("Starting earthquake data project...")
 
-# API URL
+# USGS API URL
 url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
 
-all_data = []
+all_records = []
 
 # get last 5 years
 start_year = datetime.now().year - 5
@@ -43,84 +43,79 @@ for year in range(start_year, end_year + 1):
 
         data = response.json()
 
-        for feature in data["features"]:
+        for f in data["features"]:
 
-            properties = feature["properties"]
-            geometry = feature["geometry"]["coordinates"]
+            p = f["properties"]
+            g = f["geometry"]["coordinates"]
 
-            record = {
-                "id": feature.get("id"),
-                "time": properties.get("time"),
-                "updated": properties.get("updated"),
-                "latitude": geometry[1] if geometry else None,
-                "longitude": geometry[0] if geometry else None,
-                "depth_km": geometry[2] if geometry else None,
-                "mag": properties.get("mag"),
-                "magType": properties.get("magType"),
-                "place": properties.get("place"),
-                "status": properties.get("status"),
-                "tsunami": properties.get("tsunami"),
-                "sig": properties.get("sig"),
-                "net": properties.get("net"),
-                "nst": properties.get("nst"),
-                "dmin": properties.get("dmin"),
-                "rms": properties.get("rms"),
-                "gap": properties.get("gap"),
-                "magError": properties.get("magError"),
-                "depthError": properties.get("depthError"),
-                "magNst": properties.get("magNst"),
-                "locationSource": properties.get("locationSource"),
-                "magSource": properties.get("magSource"),
-                "types": properties.get("types"),
-                "ids": properties.get("ids"),
-                "sources": properties.get("sources"),
-                "type": properties.get("type")
-            }
+            all_records.append({
 
-            all_data.append(record)
+                "id": f.get("id"),
+
+                "time": pd.to_datetime(p.get("time"), unit="ms"),
+                "updated": pd.to_datetime(p.get("updated"), unit="ms"),
+
+                "latitude": g[1] if g else None,
+                "longitude": g[0] if g else None,
+                "depth_km": g[2] if g else None,
+
+                "mag": p.get("mag"),
+                "magType": p.get("magType"),
+
+                "alert": p.get("alert"),
+                "felt": p.get("felt"),
+                "cdi": p.get("cdi"),
+                "mmi": p.get("mmi"),
+                "code": p.get("code"),
+
+                "place": p.get("place"),
+                "status": p.get("status"),
+                "tsunami": p.get("tsunami"),
+                "sig": p.get("sig"),
+
+                "net": p.get("net"),
+                "nst": p.get("nst"),
+                "dmin": p.get("dmin"),
+                "rms": p.get("rms"),
+                "gap": p.get("gap"),
+
+                "types": p.get("types"),
+                "ids": p.get("ids"),
+                "sources": p.get("sources"),
+                "type": p.get("type")
+
+            })
+
+print("Data collection finished")
 
 # convert to dataframe
-df = pd.DataFrame(all_data)
+df = pd.DataFrame(all_records)
 
-print("Data fetched successfully")
-print("Dataset shape:", df.shape)
+print("Total records:", len(df))
 
-print("First 5 rows:")
-print(df.head())
-
-# save raw data
+# save raw dataset
 df.to_csv("earthquake_raw.csv", index=False)
+
 print("Raw dataset saved")
 
 print("Cleaning dataset...")
 
-# convert time columns
-df["time"] = pd.to_datetime(df["time"], unit="ms")
-df["updated"] = pd.to_datetime(df["updated"], unit="ms")
-
-# extract country from place column
-df["country"] = df["place"].str.extract(r",\s*(.*)")
-df["country"] = df["country"].fillna("Unknown")
-
-# numeric columns
-numeric_columns = [
-    "mag", "depth_km", "nst", "dmin",
-    "rms", "gap", "magError", "depthError",
-    "magNst", "sig"
+# convert numeric columns
+numeric_cols = [
+    "mag", "depth_km", "felt", "cdi",
+    "mmi", "sig", "nst", "dmin",
+    "rms", "gap"
 ]
 
-for col in numeric_columns:
+for col in numeric_cols:
     df[col] = pd.to_numeric(df[col], errors="coerce")
 
-df[numeric_columns] = df[numeric_columns].fillna(0)
+df[numeric_cols] = df[numeric_cols].fillna(0)
 
-print("Creating new columns...")
-
-# derived columns
+# create date columns
 df["year"] = df["time"].dt.year
 df["month"] = df["time"].dt.month
 df["day"] = df["time"].dt.day
-df["day_of_week"] = df["time"].dt.day_name()
 
 # depth category
 def depth_category(depth):
@@ -137,9 +132,7 @@ def depth_category(depth):
 df["depth_category"] = df["depth_km"].apply(depth_category)
 
 # strong earthquake flag
-df["strong_earthquake"] = df["mag"].apply(
-    lambda x: 1 if x >= 6 else 0
-)
+df["strong_earthquake"] = df["mag"].apply(lambda x: 1 if x >= 6 else 0)
 
 print("Checking missing values:")
 print(df.isnull().sum())
@@ -148,3 +141,4 @@ print(df.isnull().sum())
 df.to_csv("earthquake_cleaned.csv", index=False)
 
 print("Cleaned dataset saved successfully")
+print("Project completed")
