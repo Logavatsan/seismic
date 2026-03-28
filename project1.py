@@ -19,8 +19,8 @@ print("Connecting to MySQL...")
 conn = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="Loga2003@",
-    database="b115_b118"
+    password="",
+    database=""
 )
 
 cursor = conn.cursor()
