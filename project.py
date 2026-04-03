@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from datetime import datetime
 
-print("Starting earthquake data project...")
+print("Starting earthquake data project")
 
 url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
 
@@ -11,7 +11,7 @@ all_records = []
 start_year = datetime.now().year - 5
 end_year = datetime.now().year
 
-print("Fetching earthquake data from USGS API...")
+print("Fetching earthquake data from USGS API")
 
 for year in range(start_year, end_year + 1):
 
@@ -88,8 +88,7 @@ print("Total records:", len(df))
 df.to_csv("earthquake_raw.csv", index=False)
 
 print("Raw dataset saved")
-
-print("Cleaning dataset...")
+print("Cleaning dataset")
 
 numeric_cols = [
     "mag", "depth_km", "felt", "cdi",
