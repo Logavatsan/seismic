@@ -1,7 +1,7 @@
 import pandas as pd
 import mysql.connector
 
-print("Loading dataset...")
+print("Loading dataset")
 
 df = pd.read_csv("earthquake_cleaned.csv")
 
@@ -14,7 +14,7 @@ df = df.drop_duplicates(subset="id")
 
 print("Rows after removing duplicates:", len(df))
 
-print("Connecting to MySQL...")
+print("Connecting to MySQL")
 
 conn = mysql.connector.connect(
     host="localhost",
@@ -25,7 +25,7 @@ conn = mysql.connector.connect(
 
 cursor = conn.cursor()
 
-print("Inserting data...")
+print("Inserting data")
 
 query = """
 INSERT INTO earthquakes
