@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-import re  # Added for Regex requirement
+import re 
 from datetime import datetime
 
 url = "https://earthquake.usgs.gov/fdsnws/event/1/query"
