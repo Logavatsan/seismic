@@ -118,7 +118,15 @@ def depth_category(depth):
 
 df["depth_category"] = df["depth_km"].apply(depth_category)
 
-df["strong_earthquake"] = df["mag"].apply(lambda x: 1 if x >= 6 else 0)
+strong_earthquake = []
+
+for x in df["mag"]:
+    if x >= 6:
+        strong_earthquake.append(1)
+    else:
+        strong_earthquake.append(0)
+
+df["strong_earthquake"] = strong_earthquake
 
 print("Checking missing values:")
 print(df.isnull().sum())
