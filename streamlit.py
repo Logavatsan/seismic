@@ -5,7 +5,7 @@ import plotly.express as px
 
 st.title("Global Seismic Trends Dashboard")
 
-print("Connecting to MySQL...")
+print("Connecting to MySQL")
 
 conn = mysql.connector.connect(
     host="localhost",
