@@ -37,9 +37,7 @@ for year in range(start_year, end_year + 1):
             for feature in data["features"]:
                 prop = feature["properties"]
                 geom = feature["geometry"]["coordinates"]
-                
-                # REGEX REQUIREMENT: Extract country from 'place'
-                # Usually place is "20km NW of CountryName"
+            
                 place_str = prop.get("place", "")
                 country = ""
                 if place_str:
@@ -47,7 +45,7 @@ for year in range(start_year, end_year + 1):
                     if match:
                         country = match.group(1).strip()
                     else:
-                        country = place_str # Fallback
+                        country = place_str
 
                 all_records.append({
                     "id": feature.get("id"),
@@ -59,7 +57,7 @@ for year in range(start_year, end_year + 1):
                     "mag": prop.get("mag"),
                     "magType": prop.get("magType"),
                     "place": place_str,
-                    "country": country, # Added via Regex
+                    "country": country,
                     "status": prop.get("status"),
                     "tsunami": prop.get("tsunami"),
                     "sig": prop.get("sig"),
@@ -79,7 +77,7 @@ for year in range(start_year, end_year + 1):
                     "type": prop.get("type")
                 })
         except:
-            print("Error fetching data for this month, skipping...")
+            print("Error fetching data for this month, skipping")
 
 df = pd.DataFrame(all_records)
 
